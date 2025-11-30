@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <form action="ClienteControl" method="post">
+        <h1> DAR DE ALTA A UN CLIENTE </h1>
+        RFC: (13 Caracteres) <input type="text" name="rfc" required><br><br>
+        Nombre del cliente:  <input type="text" name="nombre" required><br><br>
+        Direccion <input type="text" name="direccion" required><br><br>
+        Telefono: <input type="text" name="telefono" required> <br><br>
+        Celular: <input type="text" name="celular" required><br>
+        Email <input type="text" name="correo" required> <br><br>
+        Tipo de cliente <select name="tipo">
+        <option value="Regular">Regular</option>
+        <option value="Premium">Premium</option>
+        <option value="VIP">VIP</option>
+         </select><br><br>
+        <input type="submit" name="boton" value="Registrar Cliente">
+        
+        </form>
+    </body>
+</html>
