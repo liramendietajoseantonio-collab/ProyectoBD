@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <link rel="stylesheet" href="css/style.css">
+    </head>
+    <body>
+        <h1> MENU DE VENTAS </h1> 
+        <ul>
+            <li> <a href="altaVenta.html"> GENERAR UNA VENTA </a></li>
+            <li> <a href="bajaVenta.html"> PAGAR UNA VENTA </a></li>
+            <li> <a href="consultaVenta.html"> CONSULTAR UNA VENTA </a></li>
+            <li> <a href="modificaVenta.html"> CAMBIAR DATOS DE UNA VENTA </a></li>
+            <li>
+                <form action="VentaControl" method="post" style="display:inline;">
+                    <input type="submit" name="boton" value="LEFT JOIN">
+                </form>
+                Ver Ventas con Clientes
+            </li>
+            <li>
+                <form action="VentaControl" method="post" style="display:inline;">
+                    <input type="submit" name="boton" value="RIGHT JOIN">
+                </form>
+                Ver Productos con Ventas
+            </li>
+            <li>
+                <form action="VentaControl" method="post" style="display:inline;">
+                    <input type="submit" name="boton" value="FULL JOIN">
+                </form>
+                Ver Clientes y Ventas Completo
+            </li>
+
+        </ul>
+    </body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Alta de Venta</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="css/style.css">
+    </head>
+    <body>
+        <h1>Registrar Nueva Venta</h1>
+        <form action="VentaControl" method="post">
+            ID Cliente: <input type="number" name="id_cliente" required><br>
+            ID Producto: <input type="number" name="id_producto" required><br>
+            Cantidad: <input type="number" name="cantidad" required><br>
+            Precio Unitario: <input type="number" name="precio_unitario" required><br>
+            <input type="submit" name="boton" value="Registrar Venta">
+        </form>
+        <br>
+        <a href="Ventas.html">Regresar al Menú de Ventas</a>
+    </body>
+</html>
