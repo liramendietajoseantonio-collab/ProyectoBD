@@ -5,11 +5,16 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
 -->
 <html>
     <head>
-        <title>TODO supply a title</title>
+        <title>Consulta de Proveedor</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="css/style.css">
     </head>
     <body>
-        <div>TODO write content</div>
+         <form action="ProveedorControl" method="post">
+        <h1> CONSULTAR PROVEEDOR </h1>
+        Número de Identificación: <input type="text" name="numero_identificacion" required><br><br>
+        <input type="submit" name="boton" value="Consultar Proveedor">
+        </form>
     </body>
 </html>

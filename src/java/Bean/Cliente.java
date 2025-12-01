@@ -93,34 +93,35 @@ public class Cliente {
      * Consulta un Cliente por RFC.
      */
     public void consulta() {
-        try (Connection cn = Conexion.conectar()) {
-            String sql = "SELECT * FROM Clientes WHERE rfc = ?";
-            PreparedStatement ps = cn.prepareStatement(sql);
-            ps.setString(1, this.rfc);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                this.idCliente = rs.getInt("id_cliente");
-                this.nombre = rs.getString("nombre");
-                this.direccion = rs.getString("direccion");
-                this.telefono = rs.getString("telefono");
-                this.correoElectronico = rs.getString("correo_electronico");
-                this.celular = rs.getString("celular");
-                this.tipoCliente = rs.getString("tipo_cliente");
-                respuesta = "<h2>Cliente encontrado</h2>" +
-                           "<b>RFC:</b> " + this.rfc + "<br>" +
-                           "<b>Nombre:</b> " + this.nombre + "<br>" +
-                           "<b>Dirección:</b> " + this.direccion + "<br>" +
-                           "<b>Teléfono:</b> " + this.telefono + "<br>" +
-                           "<b>Celular:</b> " + this.celular + "<br>" +
-                           "<b>Email:</b> " + this.correoElectronico + "<br>" +
-                           "<b>Tipo de Cliente:</b> " + this.tipoCliente;
-            } else {
-                respuesta = "No se encontró el cliente con RFC: " + this.rfc;
-            }
-        } catch (Exception e) {
-            respuesta = "Error en consulta: " + e.getMessage();
+    try (Connection cn = Conexion.conectar()) {
+        String sql = "SELECT * FROM Clientes WHERE rfc = ? AND activo = 1";
+        PreparedStatement ps = cn.prepareStatement(sql);
+        ps.setString(1, this.rfc);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            this.idCliente = rs.getInt("id_cliente");
+            this.nombre = rs.getString("nombre");
+            this.direccion = rs.getString("direccion");
+            this.telefono = rs.getString("telefono");
+            this.correoElectronico = rs.getString("correo_electronico");
+            this.celular = rs.getString("celular");
+            this.tipoCliente = rs.getString("tipo_cliente");
+            respuesta = "<h2>Cliente encontrado</h2>" +
+                       "<b>RFC:</b> " + this.rfc + "<br>" +
+                       "<b>Nombre:</b> " + this.nombre + "<br>" +
+                       "<b>Dirección:</b> " + this.direccion + "<br>" +
+                       "<b>Teléfono:</b> " + this.telefono + "<br>" +
+                       "<b>Celular:</b> " + this.celular + "<br>" +
+                       "<b>Email:</b> " + this.correoElectronico + "<br>" +
+                       "<b>Tipo de Cliente:</b> " + this.tipoCliente;
+        } else {
+            respuesta = "No se encontró el cliente con RFC: " + this.rfc + " o está dado de baja.";
         }
+    } catch (Exception e) {
+        respuesta = "Error en consulta: " + e.getMessage();
     }
+}
+
     
     /**
      * Consulta un Cliente por RFC para modificar (genera formulario con datos).

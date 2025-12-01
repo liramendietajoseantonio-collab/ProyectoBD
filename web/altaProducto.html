@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Alta de Producto</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="css/style.css">
+    </head>
+    <body>
+        <form action="ProductoControl" method="post">
+        <h1> DAR DE ALTA UN PRODUCTO </h1>
+        Clave del producto: <input type="text" name="clave_producto" required><br><br>
+        Nombre del producto: <input type="text" name="nombre_producto" required><br><br>
+        Precio: <input type="number" step="0.01" name="precio" required><br><br>
+        Características: <textarea name="caracteristicas" rows="3" cols="40" required></textarea><br><br>
+        Marca: <input type="text" name="marca" required><br><br>
+        ID Proveedor: <input type="number" name="id_proveedor" required><br><br>
+        Existencia: <input type="number" name="existencia" required><br><br>
+        <input type="submit" name="boton" value="Registrar Producto">
+        </form>
+    </body>
+</html>

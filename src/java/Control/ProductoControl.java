@@ -11,12 +11,13 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 /**
  *
  * @author garri
  */
-@WebServlet(name = "ProveedorControl", urlPatterns = {"/ProveedorControl"})
-public class ProveedorControl extends HttpServlet {
+@WebServlet(name = "ProductoControl", urlPatterns = {"/ProductoControl"})
+public class ProductoControl extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -35,10 +36,10 @@ public class ProveedorControl extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ProveedorControl</title>");            
+            out.println("<title>Servlet ProductoControl</title>");            
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ProveedorControl at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet ProductoControl at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -71,43 +72,43 @@ public class ProveedorControl extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String accion = request.getParameter("boton");
-        Bean.Proveedor p = new Bean.Proveedor();
+        Bean.Producto p = new Bean.Producto();
         
         switch (accion) {
-            case "Registrar Proveedor":
-                p.setNumeroIdentificacion(request.getParameter("numero_identificacion"));
-                p.setNombre(request.getParameter("nombre"));
-                p.setNombreContacto(request.getParameter("nombre_contacto"));
-                p.setDireccion(request.getParameter("direccion"));
-                p.setTelefono(request.getParameter("telefono"));
-                p.setCorreoElectronico(request.getParameter("correo"));
-                p.setCelular(request.getParameter("celular"));
+            case "Registrar Producto":
+                p.setClaveProducto(request.getParameter("clave_producto"));
+                p.setNombreProducto(request.getParameter("nombre_producto"));
+                p.setPrecio(Double.parseDouble(request.getParameter("precio")));
+                p.setCaracteristicas(request.getParameter("caracteristicas"));
+                p.setMarca(request.getParameter("marca"));
+                p.setIdProveedor(Integer.parseInt(request.getParameter("id_proveedor")));
+                p.setExistencia(Integer.parseInt(request.getParameter("existencia")));
                 p.alta();
                 break;
                 
-            case "Dar de Baja Proveedor":
-             p.setNumeroIdentificacion(request.getParameter("numero_identificacion"));
-             p.bajaLogica();
-             break;
-             
-            case "Consultar Proveedor":
-                p.setNumeroIdentificacion(request.getParameter("numero_identificacion"));
+            case "Dar de Baja":
+                p.setClaveProducto(request.getParameter("clave_producto"));
+                p.bajaLogica();
+                break;
+                
+            case "Consultar":
+                p.setClaveProducto(request.getParameter("clave_producto"));
                 p.consulta();
                 break;
                 
             case "Buscar para Modificar":
-                p.setNumeroIdentificacion(request.getParameter("numero_identificacion"));
+                p.setClaveProducto(request.getParameter("clave_producto"));
                 p.consultaParaModificar();
                 break;
                 
-            case "Modificar Proveedor":
-                p.setNumeroIdentificacion(request.getParameter("numero_identificacion"));
-                p.setNombre(request.getParameter("nombre"));
-                p.setNombreContacto(request.getParameter("nombre_contacto"));
-                p.setDireccion(request.getParameter("direccion"));
-                p.setTelefono(request.getParameter("telefono"));
-                p.setCorreoElectronico(request.getParameter("correo"));
-                p.setCelular(request.getParameter("celular"));
+            case "Modificar Producto":
+                p.setClaveProducto(request.getParameter("clave_producto"));
+                p.setNombreProducto(request.getParameter("nombre_producto"));
+                p.setPrecio(Double.parseDouble(request.getParameter("precio")));
+                p.setCaracteristicas(request.getParameter("caracteristicas"));
+                p.setMarca(request.getParameter("marca"));
+                p.setIdProveedor(Integer.parseInt(request.getParameter("id_proveedor")));
+                p.setExistencia(Integer.parseInt(request.getParameter("existencia")));
                 p.modifica();
                 break;
                 
@@ -128,7 +129,7 @@ public class ProveedorControl extends HttpServlet {
      */
     @Override
     public String getServletInfo() {
-        return "Controlador de altas, bajas y consultas de proveedores";
+        return "Controlador de altas, bajas y consultas de productos";
     }// </editor-fold>
 
 }
