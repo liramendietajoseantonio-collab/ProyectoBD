@@ -30,6 +30,15 @@ public class VentaControl extends HttpServlet {
             
             if (boton != null) {
                 switch (boton) {
+                    
+                    // --- CASO 1: PINTAR EL FORMULARIO ---
+                    // Este caso se activa cuando vienes del menú principal y quieres ver los combos
+                    case "Nueva Venta":
+                        venta.generarFormularioAlta(); // El Bean crea el HTML con los <select>
+                        break;
+
+                    // --- CASO 2: GUARDAR EN LA BD ---
+                    // Este caso se activa cuando le das click al botón DENTRO del formulario generado arriba
                     case "Registrar Venta":
                         int idCliente = Integer.parseInt(request.getParameter("id_cliente"));
                         int idProducto = Integer.parseInt(request.getParameter("id_producto"));
@@ -40,7 +49,7 @@ public class VentaControl extends HttpServlet {
                         venta.setIdProducto(idProducto);
                         venta.setCantidad(cantidad);
                         venta.setPrecioUnitario(precioUnitario);
-                        venta.alta();
+                        venta.alta(); // Guarda en SQL
                         break;
                         
                     case "Dar de Baja Venta":
@@ -92,13 +101,15 @@ public class VentaControl extends HttpServlet {
                         venta.setRespuesta("Opción no válida");
                 }
                 
+                // Aquí se imprime lo que haya generado cualquiera de los casos (El formulario o el mensaje de éxito)
                 out.println(venta.getRespuesta());
+                
             } else {
                 out.println("<h2>No se recibió ninguna acción</h2>");
             }
             
             out.println("<br><br>");
-            out.println("<a href='Ventas.html'>Regresar al Menú de Ventas</a>");
+            out.println("<a href='Ventas.html'>Regresar al Menú de Ventas</a>"); // Asegúrate de tener este HTML
             out.println("</body>");
             out.println("</html>");
         }

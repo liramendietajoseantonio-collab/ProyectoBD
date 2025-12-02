@@ -71,9 +71,141 @@ public class Venta {
         this.respuesta = respuesta; 
     }
     
-    /**
-     * Da de alta una nueva Venta.
-     */
+    
+    // =========================================================================
+    // MÉTODOS AUXILIARES (COMBOS / DROPDOWNS)
+    // =========================================================================
+
+    public String getComboClientes(int idSeleccionado) {
+        StringBuilder combo = new StringBuilder();
+        combo.append("<select name='id_cliente' required style='padding:5px; width:300px;'>");
+        combo.append("<option value=''>-- Seleccione un Cliente --</option>");
+        
+        try (Connection cn = Conexion.conectar()) {
+            String sql = "SELECT id_cliente, nombre FROM Clientes WHERE activo = 1 ORDER BY nombre";
+            PreparedStatement ps = cn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                int id = rs.getInt("id_cliente");
+                String nombre = rs.getString("nombre");
+                String seleccionado = (id == idSeleccionado) ? "selected" : "";
+                
+                combo.append("<option value='").append(id).append("' ").append(seleccionado).append(">");
+                combo.append(nombre);
+                combo.append("</option>");
+            }
+        } catch (Exception e) {
+            System.err.println("Error cargando clientes: " + e.getMessage());
+        }
+        
+        combo.append("</select>");
+        return combo.toString();
+    }
+
+    public String getComboProductos(int idSeleccionado) {
+        StringBuilder combo = new StringBuilder();
+        combo.append("<select name='id_producto' required style='padding:5px; width:300px;'>");
+        combo.append("<option value=''>-- Seleccione un Producto --</option>");
+        
+        try (Connection cn = Conexion.conectar()) {
+            String sql = "SELECT id_producto, nombre_producto, precio FROM Productos WHERE activo = 1 AND existencia > 0 ORDER BY nombre_producto";
+            PreparedStatement ps = cn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                int id = rs.getInt("id_producto");
+                String nombre = rs.getString("nombre_producto");
+                double precio = rs.getDouble("precio");
+                String seleccionado = (id == idSeleccionado) ? "selected" : "";
+                
+                combo.append("<option value='").append(id).append("' ").append(seleccionado).append(">");
+                combo.append(nombre).append(" - $").append(precio);
+                combo.append("</option>");
+            }
+        } catch (Exception e) {
+            System.err.println("Error cargando productos: " + e.getMessage());
+        }
+        
+        combo.append("</select>");
+        return combo.toString();
+    }
+
+    // =========================================================================
+    // MÉTODOS DE FORMULARIOS DINÁMICOS
+    // =========================================================================
+
+    public void generarFormularioAlta() {
+        respuesta = "<h1>Registrar Nueva Venta</h1>";
+        respuesta += "<form action='VentaControl' method='post' style='background:#eee; padding:20px; border-radius:10px;'>";
+        
+        respuesta += "<label><b>Cliente:</b></label><br>";
+        respuesta += getComboClientes(0); 
+        respuesta += "<br><br>";
+
+        respuesta += "<label><b>Producto:</b></label><br>";
+        respuesta += getComboProductos(0); 
+        respuesta += "<br><br>";
+        
+        respuesta += "<label><b>Cantidad:</b></label><br>";
+        respuesta += "<input type='number' name='cantidad' required min='1' value='1' style='padding:5px;'><br><br>";
+        
+        respuesta += "<label><b>Precio Unitario ($):</b></label><br>";
+        respuesta += "<input type='number' step='0.01' name='precio_unitario' required placeholder='0.00' style='padding:5px;'><br><br>";
+        
+        respuesta += "<input type='submit' name='boton' value='Registrar Venta' style='padding:10px; cursor:pointer;'>";
+        respuesta += "</form>";
+    }
+
+    public void consultaParaModificar() {
+        try (Connection cn = Conexion.conectar()) {
+            String sql = "SELECT * FROM Ventas WHERE id_venta = ?";
+            PreparedStatement ps = cn.prepareStatement(sql);
+            ps.setInt(1, this.idVenta);
+            ResultSet rs = ps.executeQuery();
+            
+            if (rs.next()) {
+                this.idCliente = rs.getInt("id_cliente");
+                this.idProducto = rs.getInt("id_producto");
+                this.cantidad = rs.getInt("cantidad");
+                this.precioUnitario = rs.getDouble("precio_unitario");
+                this.total = rs.getDouble("total");
+                
+                respuesta = "<h1>Modificar Venta (Actualizar)</h1>";
+                respuesta += "<form action='VentaControl' method='post' style='background:#e6f7ff; padding:20px; border-radius:10px;'>";
+                
+                respuesta += "<b>ID Venta: " + this.idVenta + "</b><br><br>";
+                respuesta += "<input type='hidden' name='id_venta' value='" + this.idVenta + "'>";
+                
+                respuesta += "<label><b>Cliente:</b></label><br>";
+                respuesta += getComboClientes(this.idCliente); 
+                respuesta += "<br><br>";
+
+                respuesta += "<label><b>Producto:</b></label><br>";
+                respuesta += getComboProductos(this.idProducto); 
+                respuesta += "<br><br>";
+                
+                respuesta += "<label><b>Cantidad:</b></label><br>";
+                respuesta += "<input type='number' name='cantidad' value='" + this.cantidad + "' required min='1' style='padding:5px;'><br><br>";
+                
+                respuesta += "<label><b>Precio Unitario:</b></label><br>";
+                respuesta += "<input type='number' step='0.01' name='precio_unitario' value='" + this.precioUnitario + "' required style='padding:5px;'><br><br>";
+                
+                respuesta += "<input type='submit' name='boton' value='Modificar Venta' style='padding:10px; cursor:pointer;'>";
+                respuesta += "</form>";
+                
+            } else {
+                respuesta = "No se encontró la venta con ID: " + this.idVenta;
+            }
+        } catch (Exception e) {
+            respuesta = "Error en consulta para modificar: " + e.getMessage();
+        }
+    }
+
+    // =========================================================================
+    // MÉTODOS CRUD (SQL)
+    // =========================================================================
+
     public void alta() {
         try (Connection cn = Conexion.conectar()) {
             this.total = this.cantidad * this.precioUnitario;
@@ -86,15 +218,35 @@ public class Venta {
             ps.setDouble(4, this.precioUnitario);
             ps.setDouble(5, this.total);
             ps.executeUpdate();
-            respuesta = "Venta registrada exitosamente.";
+            respuesta = "<h3 style='color:green'>Venta registrada exitosamente.</h3>";
         } catch (Exception e) {
-            respuesta = "Error en alta de venta: " + e.getMessage();
+            respuesta = "<h3 style='color:red'>Error en alta de venta: " + e.getMessage() + "</h3>";
         }
     }
 
-    /**
-     * Cancela una venta (elimina el registro).
-     */
+    public void modifica() {
+        try (Connection cn = Conexion.conectar()) {
+            this.total = this.cantidad * this.precioUnitario;
+            
+            String sql = "UPDATE Ventas SET id_cliente = ?, id_producto = ?, cantidad = ?, precio_unitario = ?, total = ? WHERE id_venta = ?";
+            PreparedStatement ps = cn.prepareStatement(sql);
+            ps.setInt(1, this.idCliente);
+            ps.setInt(2, this.idProducto);
+            ps.setInt(3, this.cantidad);
+            ps.setDouble(4, this.precioUnitario);
+            ps.setDouble(5, this.total);
+            ps.setInt(6, this.idVenta);
+            int filas = ps.executeUpdate();
+            if (filas > 0) {
+                respuesta = "<h3 style='color:blue'>Venta modificada exitosamente</h3>";
+            } else {
+                respuesta = "No se encontró la venta para modificar.";
+            }
+        } catch (Exception e) {
+            respuesta = "Error en modificación: " + e.getMessage();
+        }
+    }
+
     public void cancelar() {
         try (Connection cn = Conexion.conectar()) {
             String sql = "DELETE FROM Ventas WHERE id_venta = ?";
@@ -102,7 +254,7 @@ public class Venta {
             ps.setInt(1, this.idVenta);
             int filasAfectadas = ps.executeUpdate();
             if (filasAfectadas > 0) {
-                respuesta = "Venta cancelada exitosamente.";
+                respuesta = "<h3 style='color:orange'>Venta cancelada exitosamente.</h3>";
             } else {
                 respuesta = "No se encontró la venta con ID: " + this.idVenta;
             }
@@ -111,9 +263,6 @@ public class Venta {
         }
     }
     
-    /**
-     * Consulta una Venta por ID.
-     */
     public void consulta() {
         try (Connection cn = Conexion.conectar()) {
             String sql = "SELECT * FROM Ventas WHERE id_venta = ?";
@@ -129,78 +278,19 @@ public class Venta {
                 this.fechaVenta = rs.getString("fecha_venta");
                 
                 respuesta = "<h2>Venta encontrada</h2>" +
+                           "<div style='border:1px solid #ccc; padding:10px; width:300px;'>" +
                            "<b>ID Venta:</b> " + this.idVenta + "<br>" +
                            "<b>ID Cliente:</b> " + this.idCliente + "<br>" +
                            "<b>ID Producto:</b> " + this.idProducto + "<br>" +
                            "<b>Cantidad:</b> " + this.cantidad + "<br>" +
                            "<b>Precio Unitario:</b> $" + this.precioUnitario + "<br>" +
                            "<b>Total:</b> $" + this.total + "<br>" +
-                           "<b>Fecha:</b> " + this.fechaVenta;
+                           "<b>Fecha:</b> " + this.fechaVenta + "</div>";
             } else {
                 respuesta = "No se encontró la venta con ID: " + this.idVenta;
             }
         } catch (Exception e) {
             respuesta = "Error en consulta: " + e.getMessage();
-        }
-    }
-
-    /**
-     * Consulta una Venta por ID para modificar.
-     */
-    public void consultaParaModificar() {
-        try (Connection cn = Conexion.conectar()) {
-            String sql = "SELECT * FROM Ventas WHERE id_venta = ?";
-            PreparedStatement ps = cn.prepareStatement(sql);
-            ps.setInt(1, this.idVenta);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                this.idCliente = rs.getInt("id_cliente");
-                this.idProducto = rs.getInt("id_producto");
-                this.cantidad = rs.getInt("cantidad");
-                this.precioUnitario = rs.getDouble("precio_unitario");
-                this.total = rs.getDouble("total");
-                
-                respuesta = "<h1>Modificar Venta (Paso 2: Actualizar)</h1>";
-                respuesta += "<form action='VentaControl' method='post'>";
-                respuesta += "<b>ID Venta: " + this.idVenta + "</b><br>";
-                respuesta += "<input type='hidden' name='id_venta' value='" + this.idVenta + "'>";
-                respuesta += "ID Cliente: <input type='number' name='id_cliente' value='" + this.idCliente + "'><br>";
-                respuesta += "ID Producto: <input type='number' name='id_producto' value='" + this.idProducto + "'><br>";
-                respuesta += "Cantidad: <input type='number' name='cantidad' value='" + this.cantidad + "'><br>";
-                respuesta += "Precio Unitario: <input type='number' name='precio_unitario' value='" + this.precioUnitario + "'><br><br>";
-                respuesta += "<input type='submit' name='boton' value='Modificar Venta'>";
-                respuesta += "</form>";
-            } else {
-                respuesta = "No se encontró la venta con ID: " + this.idVenta;
-            }
-        } catch (Exception e) {
-            respuesta = "Error en consulta para modificar: " + e.getMessage();
-        }
-    }
-    
-    /**
-     * Modifica los datos de una Venta existente.
-     */
-    public void modifica() {
-        try (Connection cn = Conexion.conectar()) {
-            this.total = this.cantidad * this.precioUnitario;
-            
-            String sql = "UPDATE Ventas SET id_cliente = ?, id_producto = ?, cantidad = ?, precio_unitario = ?, total = ? WHERE id_venta = ?";
-            PreparedStatement ps = cn.prepareStatement(sql);
-            ps.setInt(1, this.idCliente);
-            ps.setInt(2, this.idProducto);
-            ps.setInt(3, this.cantidad);
-            ps.setDouble(4, this.precioUnitario);
-            ps.setDouble(5, this.total);
-            ps.setInt(6, this.idVenta);
-            int filas = ps.executeUpdate();
-            if (filas > 0) {
-                respuesta = "Venta modificada exitosamente";
-            } else {
-                respuesta = "No se encontró la venta para modificar.";
-            }
-        } catch (Exception e) {
-            respuesta = "Error en modificación: " + e.getMessage();
         }
     }
 
