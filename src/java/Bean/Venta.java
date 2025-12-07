@@ -82,7 +82,7 @@ public class Venta {
         combo.append("<option value=''>-- Seleccione un Cliente --</option>");
         
         try (Connection cn = Conexion.conectar()) {
-            String sql = "SELECT id_cliente, nombre FROM Clientes WHERE activo = 1 ORDER BY nombre";
+            String sql = "SELECT id_cliente, nombre FROM Clientes WHERE estado = 1 ORDER BY nombre";
             PreparedStatement ps = cn.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             
@@ -109,7 +109,7 @@ public class Venta {
         combo.append("<option value=''>-- Seleccione un Producto --</option>");
         
         try (Connection cn = Conexion.conectar()) {
-            String sql = "SELECT id_producto, nombre_producto, precio FROM Productos WHERE activo = 1 AND existencia > 0 ORDER BY nombre_producto";
+            String sql = "SELECT id_producto, nombre_producto, precio FROM Productos WHERE estado = 1 AND existencia > 0 ORDER BY nombre_producto";
             PreparedStatement ps = cn.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             
@@ -398,6 +398,133 @@ public class Venta {
             
         } catch (Exception e) {
             respuesta = "Error en consulta FULL JOIN: " + e.getMessage();
+        }
+    }
+
+
+    /**
+     * Consulta usando la VISTA VistaVentasDetalladas
+     * Muestra todas las ventas con información completa de clientes y productos
+     */
+    public void consultaReporteVentas() {
+        try (Connection cn = Conexion.conectar()) {
+            String sql = "SELECT * FROM VistaVentasDetalladas ORDER BY fecha_venta DESC";
+            
+            PreparedStatement ps = cn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            
+            respuesta = "<h2>Reporte Completo de Ventas (usando VISTA)</h2>";
+            respuesta += "<table border='1' cellpadding='5' style='border-collapse:collapse; width:100%;'>";
+            respuesta += "<tr style='background:#4CAF50; color:white;'>";
+            respuesta += "<th>ID</th><th>Fecha</th><th>Cliente</th><th>RFC</th><th>Tipo</th>";
+            respuesta += "<th>Producto</th><th>Marca</th><th>Cant.</th><th>Precio Unit.</th><th>Total</th>";
+            respuesta += "</tr>";
+            
+            while (rs.next()) {
+                respuesta += "<tr>";
+                respuesta += "<td>" + rs.getInt("id_venta") + "</td>";
+                respuesta += "<td>" + rs.getString("fecha_venta") + "</td>";
+                respuesta += "<td>" + rs.getString("nombre_cliente") + "</td>";
+                respuesta += "<td>" + rs.getString("rfc") + "</td>";
+                respuesta += "<td>" + rs.getString("tipo_cliente") + "</td>";
+                respuesta += "<td>" + rs.getString("nombre_producto") + "</td>";
+                respuesta += "<td>" + rs.getString("marca") + "</td>";
+                respuesta += "<td>" + rs.getInt("cantidad") + "</td>";
+                respuesta += "<td>$" + rs.getDouble("precio_unitario") + "</td>";
+                respuesta += "<td><b>$" + rs.getDouble("total") + "</b></td>";
+                respuesta += "</tr>";
+            }
+            respuesta += "</table>";
+            respuesta += "<p><i>Esta consulta usa la vista VistaVentasDetalladas</i></p>";
+            
+        } catch (Exception e) {
+            respuesta = "Error en consulta de vista: " + e.getMessage();
+        }
+    }
+
+
+    /**
+     * Consulta el historial de pedidos de un cliente usando procedimiento almacenado
+     */
+    public void consultarHistorialCliente() {
+        try (Connection cn = Conexion.conectar()) {
+            String sql = "{CALL Historial_Pedidos(?)}";
+            java.sql.CallableStatement cs = cn.prepareCall(sql);
+            cs.setInt(1, this.idCliente);
+            ResultSet rs = cs.executeQuery();
+            
+            respuesta = "<h2>Historial de Pedidos del Cliente ID: " + this.idCliente + "</h2>";
+            respuesta += "<table border='1' cellpadding='5' style='border-collapse:collapse;'>";
+            respuesta += "<tr style='background:#4CAF50; color:white;'>";
+            respuesta += "<th>ID Venta</th><th>Fecha</th><th>Total</th><th>Tipo Cliente</th></tr>";
+            
+            boolean hayResultados = false;
+            while (rs.next()) {
+                hayResultados = true;
+                respuesta += "<tr>";
+                respuesta += "<td>" + rs.getInt("Order_Id") + "</td>";
+                respuesta += "<td>" + rs.getString("Order_date") + "</td>";
+                respuesta += "<td>$" + rs.getDouble("status") + "</td>";
+                respuesta += "<td>" + rs.getString("type") + "</td>";
+                respuesta += "</tr>";
+            }
+            
+            if (!hayResultados) {
+                respuesta += "<tr><td colspan='4'>Este cliente no tiene pedidos registrados</td></tr>";
+            }
+            
+            respuesta += "</table>";
+            respuesta += "<p><i>Consulta realizada usando procedimiento almacenado</i></p>";
+            
+        } catch (Exception e) {
+            respuesta = "Error al consultar historial: " + e.getMessage();
+        }
+    }
+
+
+    /**
+     * Reporte de ventas usando CAST y CONVERT para formatear datos
+     */
+    public void reporteVentasFormateado() {
+        try (Connection cn = Conexion.conectar()) {
+            String sql = "SELECT " +
+                        "v.id_venta, " +
+                        "CONVERT(VARCHAR, v.fecha_venta, 103) AS fecha_formateada, " +
+                        "c.nombre, " +
+                        "p.nombre_producto, " +
+                        "CAST(v.cantidad AS VARCHAR(10)) AS cantidad_texto, " +
+                        "CAST(v.precio_unitario AS DECIMAL(10,2)) AS precio_formato, " +
+                        "CAST(v.total AS DECIMAL(10,2)) AS total_formato " +
+                        "FROM Ventas v " +
+                        "INNER JOIN Clientes c ON v.id_cliente = c.id_cliente " +
+                        "INNER JOIN Productos p ON v.id_producto = p.id_producto " +
+                        "ORDER BY v.fecha_venta DESC";
+            
+            PreparedStatement ps = cn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            
+            respuesta = "<h2>Reporte de Ventas Formateado (CAST y CONVERT)</h2>";
+            respuesta += "<table border='1' cellpadding='5' style='border-collapse:collapse;'>";
+            respuesta += "<tr style='background:#2196F3; color:white;'>";
+            respuesta += "<th>ID Venta</th><th>Fecha (dd/mm/yyyy)</th><th>Cliente</th>";
+            respuesta += "<th>Producto</th><th>Cantidad</th><th>Precio Unit.</th><th>Total</th></tr>";
+            
+            while (rs.next()) {
+                respuesta += "<tr>";
+                respuesta += "<td>" + rs.getInt("id_venta") + "</td>";
+                respuesta += "<td>" + rs.getString("fecha_formateada") + "</td>";
+                respuesta += "<td>" + rs.getString("nombre") + "</td>";
+                respuesta += "<td>" + rs.getString("nombre_producto") + "</td>";
+                respuesta += "<td>" + rs.getString("cantidad_texto") + "</td>";
+                respuesta += "<td>$" + rs.getDouble("precio_formato") + "</td>";
+                respuesta += "<td><b>$" + rs.getDouble("total_formato") + "</b></td>";
+                respuesta += "</tr>";
+            }
+            respuesta += "</table>";
+            respuesta += "<p><i>Esta consulta usa CAST para convertir tipos de datos y CONVERT para formatear fechas</i></p>";
+            
+        } catch (Exception e) {
+            respuesta = "Error en reporte formateado: " + e.getMessage();
         }
     }
 }
