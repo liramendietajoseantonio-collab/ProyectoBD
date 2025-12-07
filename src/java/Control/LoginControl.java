@@ -39,7 +39,7 @@ public class LoginControl extends HttpServlet {
         
         try (Connection cn = Conexion.conectar()) {
             // 1. Consulta SQL
-            String sql = "SELECT tipo_usuario FROM Usuarios WHERE nombre_usuario = ? AND password = ? AND bloqueado = 0";
+            String sql = "SELECT tipo_usuario FROM Usuarios WHERE nombre_usuario = ? AND password = ? AND estado = 1";
             PreparedStatement ps = cn.prepareStatement(sql);
             ps.setString(1, usuario);
             ps.setString(2, pass);

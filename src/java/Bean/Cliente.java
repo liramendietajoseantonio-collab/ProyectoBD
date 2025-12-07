@@ -75,7 +75,7 @@ public class Cliente {
      */
     public void bajaLogica() {
         try (Connection cn = Conexion.conectar()) {
-            String sql = "UPDATE Clientes SET activo = 0 WHERE rfc = ?";
+            String sql = "UPDATE Clientes SET estado = 0 WHERE rfc = ?";
             PreparedStatement ps = cn.prepareStatement(sql);
             ps.setString(1, this.rfc);
             int filasAfectadas = ps.executeUpdate();
@@ -94,7 +94,7 @@ public class Cliente {
      */
     public void consulta() {
     try (Connection cn = Conexion.conectar()) {
-        String sql = "SELECT * FROM Clientes WHERE rfc = ? AND activo = 1";
+        String sql = "SELECT * FROM Clientes WHERE rfc = ? AND estado = 1";
         PreparedStatement ps = cn.prepareStatement(sql);
         ps.setString(1, this.rfc);
         ResultSet rs = ps.executeQuery();

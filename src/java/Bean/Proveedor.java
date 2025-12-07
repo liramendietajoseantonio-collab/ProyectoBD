@@ -72,7 +72,7 @@ public class Proveedor {
     
     public void bajaLogica() {
     try (Connection cn = Conexion.conectar()) {
-        String sql = "UPDATE Proveedores SET activo = 0 WHERE numero_identificacion = ?";
+        String sql = "UPDATE Proveedores SET estado = 0 WHERE numero_identificacion = ?";
         PreparedStatement ps = cn.prepareStatement(sql);
         ps.setString(1, this.numeroIdentificacion);
         int filasAfectadas = ps.executeUpdate();
@@ -88,7 +88,7 @@ public class Proveedor {
     
     public void consulta() {
     try (Connection cn = Conexion.conectar()) {
-        String sql = "SELECT * FROM Proveedores WHERE numero_identificacion = ? AND activo = 1";
+        String sql = "SELECT * FROM Proveedores WHERE numero_identificacion = ? AND estado = 1";
         PreparedStatement ps = cn.prepareStatement(sql);
         ps.setString(1, this.numeroIdentificacion);
         ResultSet rs = ps.executeQuery();
@@ -121,7 +121,7 @@ public class Proveedor {
      */
     public void consultaParaModificar() {
         try (Connection cn = Conexion.conectar()) {
-            String sql = "SELECT * FROM Proveedores WHERE numero_identificacion = ? AND activo = 1";
+            String sql = "SELECT * FROM Proveedores WHERE numero_identificacion = ? AND estado = 1";
             PreparedStatement ps = cn.prepareStatement(sql);
             ps.setString(1, this.numeroIdentificacion);
             ResultSet rs = ps.executeQuery();

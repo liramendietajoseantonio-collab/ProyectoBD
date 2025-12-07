@@ -75,7 +75,7 @@ public class Producto {
      */
     public void bajaLogica() {
         try (Connection cn = Conexion.conectar()) {
-            String sql = "UPDATE Productos SET activo = 0 WHERE clave_producto = ?";
+            String sql = "UPDATE Productos SET estado = 0 WHERE clave_producto = ?";
             PreparedStatement ps = cn.prepareStatement(sql);
             ps.setString(1, this.claveProducto);
             int filasAfectadas = ps.executeUpdate();
